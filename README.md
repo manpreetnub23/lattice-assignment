@@ -14,6 +14,7 @@ A responsive Weather Dashboard built for the ReactJS selection test using Open-M
 ### Page 1: Current Weather & Hourly Forecast
 
 - Browser geolocation on first load
+- Clear startup states (`Detecting location...`, `Fetching weather data...`) to avoid false "unavailable" flashes
 - Current weather cards with:
   - Temperature (Current, Min, Max)
   - Humidity
@@ -42,6 +43,7 @@ A responsive Weather Dashboard built for the ReactJS selection test using Open-M
 - Date range selection
 - Quick ranges (7d/14d/30d/90d)
 - Range validation: maximum 2 years (730 days)
+- Clear loading/error handling for location and date-range validation
 - Historical charts:
   - Temperature (Mean/Min/Max)
   - Sunrise/Sunset (IST)
@@ -111,8 +113,20 @@ src/
 ## Notes
 
 - Geolocation permission is required for localized data.
+- Geolocation uses:
+  - In-memory last-known location cache for current tab/session only
+  - `getCurrentPosition` with timeout and max-age options for faster startup
+  - No `localStorage` persistence for location
 - If env values are updated, restart the Vite dev server.
 - Some air metrics may be unavailable for certain locations/timestamps; cards show `--` in such cases.
+
+## Performance and Request Flow
+
+- Current and historical weather + air-quality requests are fetched in parallel.
+- In-flight requests are canceled on dependency changes/unmount to prevent stale state updates.
+- Perf markers are logged in the browser console:
+  - `[Perf] CurrentWeather load + first render: XX.XX ms`
+  - `[Perf] HistoricalWeather load + first render: XX.XX ms`
 
 ## Performance Check (500ms Requirement)
 
