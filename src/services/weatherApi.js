@@ -23,13 +23,14 @@ const AIR_HOURLY_METRICS = [
 	"sulphur_dioxide",
 ];
 
-const fetchAirQuality = async (params) => {
+const fetchAirQuality = async (params, signal) => {
 	const { timezone, ...restParams } = params;
 	const tz = timezone ?? "auto";
 
 	try {
 		return await axios.get(airQURL, {
 			params: { ...restParams, hourly: AIR_HOURLY_METRICS.join(","), timezone: tz },
+			signal,
 		});
 	} catch (error) {
 		if (error?.response?.status === 400) {
@@ -38,6 +39,7 @@ const fetchAirQuality = async (params) => {
 			);
 			return axios.get(airQURL, {
 				params: { ...restParams, hourly: fallbackMetrics.join(","), timezone: tz },
+				signal,
 			});
 		}
 		throw error;
@@ -45,78 +47,98 @@ const fetchAirQuality = async (params) => {
 };
 
 // Get current + hourly weather
-export const fetchWeather = async (lat, lon) => {
-	try {
-		// Weather API
-		const weatherRes = await axios.get(baseURL, {
-			params: {
-				latitude: lat,
-				longitude: lon,
-				hourly: [
-					"temperature_2m",
-					"relativehumidity_2m",
-					"precipitation",
-					"visibility",
-					"windspeed_10m",
-				].join(","),
-				daily: [
-					"temperature_2m_max",
-					"temperature_2m_min",
-					"sunrise",
-					"sunset",
-					"uv_index_max",
-					"precipitation_probability_max",
-					"windspeed_10m_max",
-				].join(","),
-				current_weather: true,
-				timezone: "auto",
-			},
-		});
+export const fetchWeather = async (lat, lon, options = {}) => {
+	const { signal } = options;
 
-		// Air Quality API
-		const airRes = await fetchAirQuality({
-			latitude: lat,
-			longitude: lon,
-		});
+	try {
+		const [weatherRes, airRes] = await Promise.all([
+			axios.get(baseURL, {
+				params: {
+					latitude: lat,
+					longitude: lon,
+					hourly: [
+						"temperature_2m",
+						"relativehumidity_2m",
+						"precipitation",
+						"visibility",
+						"windspeed_10m",
+					].join(","),
+					daily: [
+						"temperature_2m_max",
+						"temperature_2m_min",
+						"sunrise",
+						"sunset",
+						"uv_index_max",
+						"precipitation_probability_max",
+						"windspeed_10m_max",
+					].join(","),
+					current_weather: true,
+					timezone: "auto",
+				},
+				signal,
+			}),
+			fetchAirQuality(
+				{
+					latitude: lat,
+					longitude: lon,
+				},
+				signal,
+			),
+		]);
 		return { ...weatherRes.data, air_quality: airRes.data };
 	} catch (error) {
+		if (error?.code === "ERR_CANCELED") throw error;
 		console.error("Error fetching weather:", error);
 		throw error;
 	}
 };
 
-export const fetchHistoricalWeather = async (lat, lon, startDate, endDate) => {
-	try {
-		const weatherRes = await axios.get(weatherArchiveURL, {
-			params: {
-				latitude: lat,
-				longitude: lon,
-				start_date: startDate,
-				end_date: endDate,
-				daily: [
-					"temperature_2m_max",
-					"temperature_2m_min",
-					"temperature_2m_mean",
-					"sunrise",
-					"sunset",
-					"precipitation_sum",
-					"wind_speed_10m_max",
-					"winddirection_10m_dominant",
-				].join(","),
-				timezone: "Asia/Kolkata",
-			},
-		});
+export const fetchHistoricalWeather = async (
+	lat,
+	lon,
+	startDate,
+	endDate,
+	options = {},
+) => {
+	const { signal } = options;
 
-		const airRes = await fetchAirQuality({
-			latitude: lat,
-			longitude: lon,
-			start_date: startDate,
-			end_date: endDate,
-			timezone: "Asia/Kolkata",
-		});
+	try {
+		const [weatherRes, airRes] = await Promise.all([
+			axios.get(weatherArchiveURL, {
+				params: {
+					latitude: lat,
+					longitude: lon,
+					start_date: startDate,
+					end_date: endDate,
+					daily: [
+						"temperature_2m_max",
+						"temperature_2m_min",
+						"temperature_2m_mean",
+						"sunrise",
+						"sunset",
+						"precipitation_sum",
+						"wind_speed_10m_max",
+						"winddirection_10m_dominant",
+					].join(","),
+					timezone: "Asia/Kolkata",
+				},
+				signal,
+			}),
+			fetchAirQuality(
+				{
+					latitude: lat,
+					longitude: lon,
+					start_date: startDate,
+					end_date: endDate,
+					timezone: "Asia/Kolkata",
+				},
+				signal,
+			),
+		]);
 
 		return { ...weatherRes.data, air_quality: airRes.data };
 	} catch (error) {
+		if (error?.code === "ERR_CANCELED") throw error;
 		console.error("Error fetching historical weather:", error);
 		throw error;
 	}

@@ -35,7 +35,7 @@ const toIstDecimalHour = (isoTime) => {
 };
 
 const HistoricalWeather = () => {
-	const { location } = useGeolocation();
+	const { location, error: geoError } = useGeolocation();
 	const [startDate, setStartDate] = useState("2024-01-01");
 	const [endDate, setEndDate] = useState("2024-01-10");
 	const [data, setData] = useState(null);
@@ -56,9 +56,11 @@ const HistoricalWeather = () => {
 
 	useEffect(() => {
 		if (!location) return;
+		const controller = new AbortController();
 		if (parseDate(debouncedStartDate) > parseDate(debouncedEndDate)) {
 			setError("Start date must be on or before end date.");
 			setData(null);
+			setLoading(false);
 			return;
 		}
 		if (
@@ -66,6 +68,7 @@ const HistoricalWeather = () => {
 		) {
 			setError("Range cannot exceed 730 days.");
 			setData(null);
+			setLoading(false);
 			return;
 		}
 
@@ -78,6 +81,7 @@ const HistoricalWeather = () => {
 			location.lon,
 			debouncedStartDate,
 			debouncedEndDate,
+			{ signal: controller.signal },
 		)
 			.then((result) => {
 				setData(result);
@@ -88,10 +92,14 @@ const HistoricalWeather = () => {
 					);
 				});
 			})
-			.catch(() =>
-				setError("Failed to load data. Please check the date range."),
-			)
-			.finally(() => setLoading(false));
+			.catch((e) => {
+				if (e?.code === "ERR_CANCELED") return;
+				setError("Failed to load data. Please check the date range.");
+			})
+			.finally(() => {
+				if (!controller.signal.aborted) setLoading(false);
+			});
+		return () => controller.abort();
 	}, [location, debouncedStartDate, debouncedEndDate]);
 
 	const daily = data?.daily;
@@ -234,6 +242,29 @@ const HistoricalWeather = () => {
 				</p>
 			</div>
 
+			{geoError && (
+				<div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
+					Location unavailable: {geoError}
+				</div>
+			)}
+
+			{!location && !geoError && (
+				<div className="flex items-center gap-2 text-slate-400 text-sm">
+					<svg
+						className="animate-spin"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2.5"
+					>
+						<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+					</svg>
+					Detecting location...
+				</div>
+			)}
+
 			{loading && (
 				<div className="flex items-center gap-2 text-slate-400 text-sm">
 					<svg
@@ -257,7 +288,7 @@ const HistoricalWeather = () => {
 				</div>
 			)}
 
-			{daily?.time && !loading && (
+			{location && daily?.time && !loading && (
 				<>
 					<div className="border-t border-slate-200 pt-6">
 						<h2 className="text-base font-bold text-slate-800">
@@ -287,7 +318,7 @@ const HistoricalWeather = () => {
 				</>
 			)}
 
-			{!loading && !daily?.time && !error && (
+			{location && !loading && !daily?.time && !error && (
 				<div className="text-center py-20 text-slate-300 text-sm">
 					Select a date range to view historical data
 				</div>

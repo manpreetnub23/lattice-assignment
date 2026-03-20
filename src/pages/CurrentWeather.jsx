@@ -11,7 +11,7 @@ const toLocalDateISO = (date = new Date()) => {
 	return `${y}-${m}-${d}`;
 };
 
-const Spinner = () => (
+const Spinner = ({ label = "Fetching weather data..." }) => (
 	<div className="flex items-center gap-2 text-slate-400">
 		<svg
 			className="animate-spin"
@@ -24,7 +24,7 @@ const Spinner = () => (
 		>
 			<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
 		</svg>
-		<span className="text-sm">Fetching weather data...</span>
+		<span className="text-sm">{label}</span>
 	</div>
 );
 
@@ -56,9 +56,11 @@ const CurrentWeather = () => {
 
 	useEffect(() => {
 		if (!location) return;
+		const controller = new AbortController();
 		const t0 = performance.now();
 		setLoading(true);
-		fetchWeather(location.lat, location.lon)
+		setError(null);
+		fetchWeather(location.lat, location.lon, { signal: controller.signal })
 			.then((result) => {
 				setData(result);
 				requestAnimationFrame(() => {
@@ -68,8 +70,14 @@ const CurrentWeather = () => {
 					);
 				});
 			})
-			.catch((e) => setError(e.message))
-			.finally(() => setLoading(false));
+			.catch((e) => {
+				if (e?.code === "ERR_CANCELED") return;
+				setError(e.message);
+			})
+			.finally(() => {
+				if (!controller.signal.aborted) setLoading(false);
+			});
+		return () => controller.abort();
 	}, [location]);
 
 	const convertTemp = (temp) =>
@@ -179,6 +187,12 @@ const CurrentWeather = () => {
 	if (geoError)
 		return (
 			<div className="p-12 text-center text-red-500 text-sm">📍 {geoError}</div>
+		);
+	if (!location)
+		return (
+			<div className="p-12">
+				<Spinner label="Detecting location..." />
+			</div>
 		);
 	if (error && !data)
 		return <div className="p-12 text-center text-red-500 text-sm">{error}</div>;
