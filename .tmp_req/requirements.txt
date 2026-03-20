@@ -1,0 +1,53 @@
+Selection Test: Weather Dashboard
+Role: Junior ReactJS Frontend Developer
+Project Overview
+The goal of this test is to develop a responsive web application that integrates with the Open-Meteo API (https://open-meteo.com) to provide real-time and historical weather insights. The application must automatically detect the user's location via browser GPS upon landing to display localized data.
+Technical Requirements
+Framework: ReactJS.
+Data Source: Open-Meteo API.
+Performance: The application must load and render all data within 500 milliseconds.
+Responsiveness: The UI and all data visualizations must be fully mobile-friendly.
+Feature Breakdown
+Page 1: Current Weather & Hourly Forecast
+This page should display information for the current date by default or a specific date selected via a calendar view.
+1. Individual Weather Variables: Display the following parameters clearly as individual values:
+Temperature: Minimum, Maximum, and Current.
+Atmospheric Conditions: Precipitation , Relative Humidity , and UV Index.
+Sun Cycle: Sunrise and Sunset times.
+Wind & Air: Maximum Wind Speed and Precipitation Probability Max.
+Air Quality Metrics: Air Quality Index , PM10 , PM2.5 , Carbon Monoxide (CO) , Carbon Dioxide (CO2) , Nitrogen Dioxide (NO2) , and Sulphur Dioxide (SO2).
+2. Hourly Data Visualizations: Create individual graphs for each bullet point below, plotted at hourly intervals for the selected date:
+Temperature. (User can toggle from centigrade to fahrenheit)
+Relative Humidity.
+Precipitation.
+Visibility.
+Wind Speed (10m).
+PM10 & PM2.5 (Combined in a single graph).
+Page 2: Historical Date range (Max 2 years)
+A separate navigation view where users can analyze long-term trends by selecting a date range (up to a maximum of 2 years).
+Historical Charts: The developer must choose the most suitable chart type (line, bar, etc.) based on the nature of the variables.
+Temperature: Mean, Max, and Min.
+Sun Cycle: Sunrise and Sunset (displayed in IST).
+Precipitation: Total values for the range.
+Wind: Max Wind Speed and Dominant Wind Direction.
+Air Quality: PM10 and PM2.5 trends.
+Visualizations & UI Standards
+All graphs and charts must include the following interactive features:
+Horizontal Scrolling: For navigating dense datasets.
+Zoom Functionality: Ability to zoom in and out of specific timeframes.
+Mobile Adaptation: Components must automatically adjust to remain legible on mobile screens.
+Submission Instructions
+Submit all the items mentioned below through this google form: https://forms.gle/hncDcKF32CGQkpp69
+A GitHub repository link.with a README.md .
+Host the website online  (plus point)
+Evaluation Criteria
+Code Quality: Clean, modular React components.
+Performance: Adherence to the 500ms rendering limit.
+Data Handling: Correct integration with the Open-Meteo API and browser GPS.
+UX/UI: Effective use of charts and responsive design principles.
+Timeline
+You have to submit the assignment within 5 days of receiving it. We expect that the assignment will take you 8 hours to complete, so please schedule your time accordingly . Late submissions will not be accepted.
+You will be informed of the results of your selection test within 3 working days of submitting your assignment, via email.
+If you pass the selection test, you will be invited for the final step — the personal interview. You will have multiple slots to choose from, on Mondays and Thursday. Interviews will last 30-45 minutes
+Questions?
+Send an email to hr@thelattice.in

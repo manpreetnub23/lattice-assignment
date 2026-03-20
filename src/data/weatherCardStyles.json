@@ -1,0 +1,23 @@
+{
+	"Current Temp": { "iconBg": "bg-orange-100", "iconColor": "text-orange-500" },
+	"Max Temp": { "iconBg": "bg-red-100", "iconColor": "text-red-500" },
+	"Min Temp": { "iconBg": "bg-blue-100", "iconColor": "text-blue-500" },
+	"Humidity": { "iconBg": "bg-sky-100", "iconColor": "text-sky-500" },
+	"Precipitation": { "iconBg": "bg-cyan-100", "iconColor": "text-cyan-600" },
+	"Precip. Probability Max": {
+		"iconBg": "bg-teal-100",
+		"iconColor": "text-teal-600"
+	},
+	"Wind Speed": { "iconBg": "bg-green-100", "iconColor": "text-green-600" },
+	"UV Index": { "iconBg": "bg-yellow-100", "iconColor": "text-yellow-500" },
+	"AQI": { "iconBg": "bg-lime-100", "iconColor": "text-lime-600" },
+	"PM10": { "iconBg": "bg-violet-100", "iconColor": "text-violet-500" },
+	"PM2.5": { "iconBg": "bg-purple-100", "iconColor": "text-purple-500" },
+	"CO": { "iconBg": "bg-rose-100", "iconColor": "text-rose-500" },
+	"CO2": { "iconBg": "bg-pink-100", "iconColor": "text-pink-500" },
+	"NO2": { "iconBg": "bg-amber-100", "iconColor": "text-amber-600" },
+	"SO2": { "iconBg": "bg-orange-100", "iconColor": "text-orange-600" },
+	"Sunrise": { "iconBg": "bg-amber-100", "iconColor": "text-amber-500" },
+	"Sunset": { "iconBg": "bg-purple-100", "iconColor": "text-purple-500" }
+}
+
